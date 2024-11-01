@@ -10,7 +10,6 @@ values in config.py are correct.
 export $(grep -v '^#' .env | xargs -0)
 docker build -t hub.opensciencegrid.org/opensciencegrid/ospool-request-report:latest .
 docker run \
-  -e COMANAGE_PASSWORD=$COMANAGE_PASSWORD \
   -e FRESHDESK_API_TOKEN=$FRESHDESK_API_TOKEN \
   -t hub.opensciencegrid.org/opensciencegrid/ospool-request-report:latest
 ```

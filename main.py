@@ -87,7 +87,7 @@ def main() -> None:
                 'clock@wisc.edu',
                 ['clock@wisc.edu', 'chtc-freshdesk-report@g-groups.wisc.edu'],
                 title,
-                f"Attached is a monthly report on freshdesk applications.\n\n",
+                f"Attached is a monthly report on freshdesk applications.\nThis report is generated via code saved here: https://github.com/path-cc/path-freshticket-report\n\n",
                 [report_path],
                 SMTP_SERVER
             )
