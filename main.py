@@ -68,8 +68,8 @@ def main() -> None:
         # Starts:         At the most recent strat of month
         # Ends:           At the most recent end of month
         today = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
-        report_end = today.replace(day=1) - datetime.timedelta(days=1)
-        report_start = report_end.replace(day=1)
+        report_end = (today.replace(day=1) - datetime.timedelta(days=1)).replace(hour=23, minute=59, second=59)
+        report_start = report_end.replace(day=1, hour=0, minute=0, second=0)
 
         # Filter out the tickets that were created after the start of the reporting period
         report = report[report['ft_created'] >= report_start]
