@@ -46,6 +46,7 @@ def clean_ticket(t):
         "ft_name": t['requester']['name'],
         "ft_email": t['requester']['email'],
         "ft_created": datetime.datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ'),
+        "ft_tags": ";".join(t['tags']),
         **parse_html_to_dict(t['description'])
     }
 
@@ -56,7 +57,7 @@ def parse_html_to_dict(html: str) -> dict:
     return {match[0].strip(): match[1].strip() for match in matches}
 
 
-def main() -> None:
+def main(month: int= None, year: int = None) -> None:
 
     try:
         fresh_tickets_dirty = get_past_application_tickets(datetime.datetime.now() - datetime.timedelta(days=63))
@@ -67,8 +68,11 @@ def main() -> None:
         # Reporting period:
         # Starts:         At the most recent strat of month
         # Ends:           At the most recent end of month
-        today = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
-        report_end = (today.replace(day=1) - datetime.timedelta(days=1)).replace(hour=23, minute=59, second=59)
+        now = datetime.datetime.now()
+        date = now.replace(month=now.month - 1, day=1, hour=0, minute=0, second=0)  # default to previous month
+        if month is not None and year is not None:
+            date = date.replace(month=month, year=year)
+        report_end = (date.replace(day=1, month=(date.month + 1)) - datetime.timedelta(days=1)).replace(hour=23, minute=59, second=59)
         report_start = report_end.replace(day=1, hour=0, minute=0, second=0)
 
         # Filter out the tickets that were created after the start of the reporting period
@@ -87,7 +91,7 @@ def main() -> None:
                 'clock@wisc.edu',
                 ['clock@wisc.edu', 'chtc-freshdesk-report@g-groups.wisc.edu'],
                 title,
-                f"Attached is a monthly report on freshdesk applications.\nThis report is generated via code saved here: https://github.com/path-cc/path-freshticket-report\n\n",
+                f"Attached is a monthly report on freshdesk applications.\nThis report is generated via code saved here: https://github.com/path-cc/path-freshticket-report\nView all reports here: https://groups.google.com/a/g-groups.wisc.edu/g/chtc-freshdesk-report\n\n",
                 [report_path],
                 SMTP_SERVER
             )
