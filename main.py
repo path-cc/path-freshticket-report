@@ -17,20 +17,42 @@ from config import (
 )
 
 
-def get_past_application_tickets(cutoff: datetime.datetime) -> list:
+def get_past_application_tickets(start_range: datetime.datetime, end_range: datetime.datetime) -> list:
 
     tickets = []
 
-    for x in range(1,10):  # Max out at 300 tickets
-        ticket_page = get_tickets(page=x)
+    page = 1
+    last_ticket_date = start_range
+    while True:
+        # Freshdesk API has a hard limit of 10 pages of results, so if we hit page 11, we need to update the start_range to the last ticket date
+        if page == 11:
+            print("Hit page 11, updating the start range to the last ticket date")
+            page = 1
+            end_range = last_ticket_date
+            continue
+
+        ticket_page = get_tickets(page=page, start_range=start_range, end_range=end_range)
+
+        # If no tickets are returned, break the loop
+        if len(ticket_page) == 0:
+            break
 
         for ticket in ticket_page:
-            if datetime.datetime.strptime(ticket['created_at'], '%Y-%m-%dT%H:%M:%SZ') < cutoff:
-                return tickets
+
+            last_ticket_date = datetime.datetime.strptime(ticket['created_at'], '%Y-%m-%dT%H:%M:%SZ')
 
             if ticket['subject'] == 'OSPool User - Account Creation':
                 ticket['requester'] = get_contact(ticket['requester_id'])
                 tickets.append(ticket)
+
+        page += 1
+
+    # Run through tickets and remove duplicates ( same id )
+    unique_tickets = {}
+    for ticket in tickets:
+        unique_tickets[ticket['requester']['email']] = ticket
+
+    tickets = list(unique_tickets.values())
 
     return tickets
 
@@ -60,11 +82,6 @@ def parse_html_to_dict(html: str) -> dict:
 def main(month: int= None, year: int = None) -> None:
 
     try:
-        fresh_tickets_dirty = get_past_application_tickets(datetime.datetime.now() - datetime.timedelta(days=63))
-        fresh_tickets = list(map(clean_ticket, fresh_tickets_dirty))
-
-        report = pd.DataFrame(fresh_tickets)
-
         # Reporting period:
         # Starts:         At the most recent strat of month
         # Ends:           At the most recent end of month
@@ -75,7 +92,11 @@ def main(month: int= None, year: int = None) -> None:
         report_end = (date.replace(day=1, month=(date.month + 1)) - datetime.timedelta(days=1)).replace(hour=23, minute=59, second=59)
         report_start = report_end.replace(day=1, hour=0, minute=0, second=0)
 
-        # Filter out the tickets that were created after the start of the reporting period
+        fresh_tickets_dirty = get_past_application_tickets(report_start, report_end)
+        fresh_tickets = list(map(clean_ticket, fresh_tickets_dirty))
+        report = pd.DataFrame(fresh_tickets)
+
+        # Filter out the tickets that were not created in the reporting period
         report = report[report['ft_created'] >= report_start]
         report = report[report['ft_created'] <= report_end]
 
@@ -98,6 +119,8 @@ def main(month: int= None, year: int = None) -> None:
 
     except Exception as e:
 
+        print(f"Error generating report: {e}")
+
         send_email(
             'clock@wisc.edu',
             ['clock@wisc.edu', 'chtc-freshdesk-report@g-groups.wisc.edu'],
@@ -109,4 +132,4 @@ def main(month: int= None, year: int = None) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(month=8, year=2024)
