@@ -132,4 +132,4 @@ def main(month: int= None, year: int = None) -> None:
 
 
 if __name__ == "__main__":
-    main(month=8, year=2024)
+    main()
