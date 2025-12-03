@@ -17,8 +17,8 @@ docker run \
 # Publish ( need credentials )
 ```shell
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
-docker build -t hub.opensciencegrid.org/opensciencegrid/ospool-request-report:latest .
-docker push hub.opensciencegrid.org/opensciencegrid/ospool-request-report:latest
+docker build -t hub.opensciencegrid.org/opensciencegrid/ospool-request-report:1.0.0 .
+docker push hub.opensciencegrid.org/opensciencegrid/ospool-request-report:1.0.0
 ```
 
 # Manually run on Tiger

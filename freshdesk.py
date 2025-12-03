@@ -16,9 +16,11 @@ def get_tickets(page: int, start_range: datetime.datetime, end_range: datetime.d
     }
 
     params = {
-        "query": f"\"group_id:{FRESHDESK_GROUP} AND (created_at:>'{start_range.strftime("%Y-%m-%d")}' AND created_at:<'{end_range.strftime("%Y-%m-%d")}')\"",
+        "query": f"\"group_id:{FRESHDESK_GROUP} AND (created_at:>'{start_range.strftime('%Y-%m-%d')}' AND created_at:<'{end_range.strftime('%Y-%m-%d')}')\"",
         "page": page
     }
+
+    print(params)
 
     response = requests.get(f'{FRESHDESK_API_URL}search/tickets', params=params, auth=auth, headers=headers)
 

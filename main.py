@@ -109,7 +109,7 @@ def main(month: int= None, year: int = None) -> None:
             report.to_csv(report_path, index=False)
 
             send_email(
-                'clock@wisc.edu',
+                'path-freshticket-report@path-cc.io',
                 ['clock@wisc.edu', 'chtc-freshdesk-report@g-groups.wisc.edu'],
                 title,
                 f"Attached is a monthly report on freshdesk applications.\nThis report is generated via code saved here: https://github.com/path-cc/path-freshticket-report\nView all reports here: https://groups.google.com/a/g-groups.wisc.edu/g/chtc-freshdesk-report\n\n",
@@ -122,7 +122,7 @@ def main(month: int= None, year: int = None) -> None:
         print(f"Error generating report: {e}")
 
         send_email(
-            'clock@wisc.edu',
+            'path-freshticket-report@path-cc.io',
             ['clock@wisc.edu', 'chtc-freshdesk-report@g-groups.wisc.edu'],
             "Monthly Freshdesk Report Failure",
             f"Monthly report on freshdesk applications failed!!!\n\n Errors Recorded: {e}",
@@ -132,4 +132,5 @@ def main(month: int= None, year: int = None) -> None:
 
 
 if __name__ == "__main__":
+    print("Starting monthly freshdesk report generation...")
     main()
